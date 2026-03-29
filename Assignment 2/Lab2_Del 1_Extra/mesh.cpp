@@ -1,0 +1,94 @@
+#include <stdlib.h>
+#include "mesh.h"
+
+
+void insertModel(Mesh** list, int nv, float* vArr, int nt, int* tArr, float scale, vec3 positioned, vec3 rotation, vec3 vec3Scale) {
+	Mesh* mesh = (Mesh*)malloc(sizeof(Mesh));
+	mesh->nv = nv; //Number of vertices in model
+	mesh->nt = nt; //Number of triangel in model
+	mesh->vertices = (vec3*)malloc(nv * sizeof(vec3));
+	mesh->vnorms = (vec3*)malloc(nv * sizeof(vec3));
+	mesh->triangles = (Triangle*)malloc(nt * sizeof(Triangle));
+
+	// set mesh vertices
+	for (int i = 0; i < nv; i++) {
+		mesh->vertices[i].x = vArr[i * 3] * scale;
+		mesh->vertices[i].y = vArr[i * 3 + 1] * scale;
+		mesh->vertices[i].z = vArr[i * 3 + 2] * scale;
+	}
+
+	// set mesh triangles
+	for (int i = 0; i < nt; i++) {
+		mesh->triangles[i].vInds[0] = tArr[i * 3];
+		mesh->triangles[i].vInds[1] = tArr[i * 3 + 1];
+		mesh->triangles[i].vInds[2] = tArr[i * 3 + 2];
+	}
+
+	// Assignment 1: 
+	// Calculate and store suitable vertex normals for the mesh here.
+	// Replace the code below that simply sets some arbitrary normal values	
+	// Hint: You need to fix the implementation of the SurfaceNormal function
+	// and use that for normal calculations.
+
+
+	//vec3 ___tmp = {0.80078125f, 0.34765625f, 0.1796875f};
+
+	//Asigment 1.4 
+
+
+	//Each vertex normal sets to 0.0.0
+	vec3 ___tmp = { 0.0f, 0.0f, 0.0f };
+	for (int i = 0; i < nv; i++) {
+		mesh->vnorms[i] = ___tmp;
+
+	}
+
+
+	//For each triangel, cal a normal, add that normalvalue to all triangels vertex
+	for (int i = 0; i < nt; i++) {
+	
+		
+		//Get index verktex in triangel
+		int vertexIndexA = mesh->triangles[i].vInds[0];
+		int vertexIndexB = mesh->triangles[i].vInds[1];
+		int vertexIndexC = mesh->triangles[i].vInds[2];
+	
+		
+		//Get cordinate for each vertex  
+		vec3 a = mesh->vertices[vertexIndexA];
+		vec3 b = mesh->vertices[vertexIndexB];
+		vec3 c = mesh->vertices[vertexIndexC];
+	
+		
+		//Cal normalize 
+		vec3 normalTriangel = normalize(cross(b - a, c - a));
+
+
+		
+
+		//All vertex get 
+		mesh->vnorms[vertexIndexA] += normalTriangel;
+		mesh->vnorms[vertexIndexB] += normalTriangel;
+		mesh->vnorms[vertexIndexC] += normalTriangel;
+	
+	}
+
+	//Normalize all vertex
+	for (int i = 0; i < nv; i++){
+	
+		mesh->vnorms[i] = normalize(mesh->vnorms[i]);
+	
+	}
+
+
+	//Assigment 1.5 
+	//Save the diffrent vec3 to the mesh 
+	mesh->translation = positioned;
+	mesh->rotation = rotation;
+	mesh->scale = vec3Scale;
+
+
+
+	mesh->next = *list;
+	*list = mesh;
+}
